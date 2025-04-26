@@ -61,7 +61,7 @@ const Header = memo(({isEnabled, toggleSwitch}) => {
         </Text>
         <View
           style={{
-            marginLeft: 50,
+            marginLeft: 30,
             marginTop: 17,
             display: 'flex',
             flexDirection: 'row',

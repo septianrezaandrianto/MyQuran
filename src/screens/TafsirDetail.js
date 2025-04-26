@@ -107,8 +107,8 @@ const SurahDetail = () => {
                 })
               }>
               <Text style={styles.footerText}>
-                Tafsir Sebelumnya: {surahPrevious.nomor}.{' '}
-                {surahPrevious.namaLatin} ({surahPrevious.jumlahAyat} ayat)
+                Sebelumnya: {surahPrevious.nomor}. {surahPrevious.namaLatin} (
+                {surahPrevious.jumlahAyat} ayat)
               </Text>
             </TouchableOpacity>
           </View>
@@ -139,7 +139,7 @@ const SurahDetail = () => {
               navigation.push(PAGE.TAFSIR_DETAIL, {id: surahNext.nomor})
             }>
             <Text style={styles.footerText}>
-              Tafsir Selanjutnya: {surahNext.nomor}. {surahNext.namaLatin} (
+              Selanjutnya: {surahNext.nomor}. {surahNext.namaLatin} (
               {surahNext.jumlahAyat} ayat)
             </Text>
           </TouchableOpacity>
