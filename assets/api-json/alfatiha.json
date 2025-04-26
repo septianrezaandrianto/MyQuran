@@ -1,7 +1,7 @@
 {
   "nomor": 1,
   "nama": "الفاتحة",
-  "namaLatin": "Al-Fatihah",
+  "namaLatin": "Al-Baqarah",
   "jumlahAyat": 7,
   "tempatTurun": "Mekah",
   "arti": "Pembukaan",
@@ -107,10 +107,16 @@
     }
   ],
   "suratSelanjutnya": {
-    "nomor": 2,
-    "nama": "البقرة",
-    "namaLatin": "Al-Baqarah",
-    "jumlahAyat": 286
+    "nomor": 3,
+    "nama": "اٰل عمران",
+    "namaLatin": "Ali 'Imran",
+    "jumlahAyat": 200
   },
+  // "suratSebelumnya": {
+  //   "nomor": 1,
+  //   "nama": "الفاتحة",
+  //   "namaLatin": "Al-Fatihah",
+  //   "jumlahAyat": 7
+  // }
   "suratSebelumnya": false
 }

@@ -2,7 +2,7 @@ import {Image, Switch, Text, TouchableOpacity, View} from 'react-native';
 import quranLogo from './../../assets/images/quran-logo.png';
 import usePage from '../hooks/usePage';
 import {useNavigation} from '@react-navigation/native';
-import {memo, useCallback, useRef, useState} from 'react';
+import {memo, useCallback} from 'react';
 import {PAGE} from '../constants/constants';
 
 const Header = memo(({isEnabled, toggleSwitch}) => {
