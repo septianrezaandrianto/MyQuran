@@ -11,6 +11,7 @@ import {
 import useDarkModeStore from '../hooks/useDarkModeStore';
 import {useNavigation} from '@react-navigation/native';
 import usePage from '../hooks/usePage';
+import Layout from '../components/Layout';
 
 const SurahList = () => {
   const navigation = useNavigation();
@@ -72,13 +73,15 @@ const SurahList = () => {
   );
 
   return (
-    <FlatList
-      contentContainerStyle={styles.container}
-      data={dataList}
-      keyExtractor={item => item.nomor.toString()}
-      renderItem={renderItem}
-      showsVerticalScrollIndicator={false}
-    />
+    <Layout>
+      <FlatList
+        contentContainerStyle={styles.container}
+        data={dataList}
+        keyExtractor={item => item.nomor.toString()}
+        renderItem={renderItem}
+        showsVerticalScrollIndicator={false}
+      />
+    </Layout>
   );
 };
 

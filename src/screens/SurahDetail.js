@@ -13,6 +13,7 @@ import useDarkModeStore from '../hooks/useDarkModeStore';
 import HeaderDetail from '../components/HeaderDetail';
 import {PAGE} from '../constants/constants';
 import axios from 'axios';
+import Layout from '../components/Layout';
 
 const SurahDetail = () => {
   const {isEnabled} = useDarkModeStore();
@@ -114,66 +115,68 @@ const SurahDetail = () => {
   }
 
   return (
-    <View style={[styles.container]}>
-      <View
-        style={{
-          marginTop: -15,
-          marginBottom: -50,
-        }}>
-        {surahPrevious && (
-          <View style={styles.previousButtonWrapper}>
+    <Layout>
+      <View style={[styles.container]}>
+        <View
+          style={{
+            marginTop: -15,
+            marginBottom: -50,
+          }}>
+          {surahPrevious && (
+            <View style={styles.previousButtonWrapper}>
+              <TouchableOpacity
+                style={[
+                  styles.footerButton,
+                  {
+                    backgroundColor: isEnabled ? '#000' : '#219ebc',
+                  },
+                ]}
+                onPress={() =>
+                  navigation.push(PAGE.SURAH_DETAIL, {
+                    id: surahPrevious.nomor,
+                  })
+                }>
+                <Text style={styles.footerText}>
+                  Sebelumnya: {surahPrevious.nomor}. {surahPrevious.namaLatin} (
+                  {surahPrevious.jumlahAyat} ayat)
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        <View style={{marginTop: surahPrevious ? 40 : 0}}>
+          <HeaderDetail surah={dataDetail} title="Surat" />
+
+          <FlatList
+            key={id}
+            data={dataDetail?.ayat}
+            keyExtractor={item => item.nomorAyat.toString()}
+            renderItem={renderAyat}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+        <View style={[styles.footerWrapper, {bottom: surahPrevious ? 60 : 20}]}>
+          {/* Next Surah Button */}
+          {surahNext && (
             <TouchableOpacity
               style={[
                 styles.footerButton,
-                {
-                  backgroundColor: isEnabled ? '#000' : '#219ebc',
-                },
+                {backgroundColor: isEnabled ? '#000' : '#219ebc'},
+                {marginBottom: surahPrevious ? -30 : 10},
               ]}
               onPress={() =>
-                navigation.push(PAGE.SURAH_DETAIL, {
-                  id: surahPrevious.nomor,
-                })
+                navigation.push(PAGE.SURAH_DETAIL, {id: surahNext.nomor})
               }>
               <Text style={styles.footerText}>
-                Sebelumnya: {surahPrevious.nomor}. {surahPrevious.namaLatin} (
-                {surahPrevious.jumlahAyat} ayat)
+                Selanjutnya: {surahNext.nomor}. {surahNext.namaLatin} (
+                {surahNext.jumlahAyat} ayat)
               </Text>
             </TouchableOpacity>
-          </View>
-        )}
+          )}
+        </View>
       </View>
-
-      <View style={{marginTop: surahPrevious ? 40 : 0}}>
-        <HeaderDetail surah={dataDetail} title="Surat" />
-
-        <FlatList
-          key={id}
-          data={dataDetail?.ayat}
-          keyExtractor={item => item.nomorAyat.toString()}
-          renderItem={renderAyat}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-      <View style={[styles.footerWrapper, {bottom: surahPrevious ? 60 : 20}]}>
-        {/* Next Surah Button */}
-        {surahNext && (
-          <TouchableOpacity
-            style={[
-              styles.footerButton,
-              {backgroundColor: isEnabled ? '#000' : '#219ebc'},
-              {marginBottom: surahPrevious ? -30 : 10},
-            ]}
-            onPress={() =>
-              navigation.push(PAGE.SURAH_DETAIL, {id: surahNext.nomor})
-            }>
-            <Text style={styles.footerText}>
-              Selanjutnya: {surahNext.nomor}. {surahNext.namaLatin} (
-              {surahNext.jumlahAyat} ayat)
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </View>
+    </Layout>
   );
 };
 

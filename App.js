@@ -14,30 +14,9 @@ const App = () => {
       <Stack.Navigator
         initialRouteName={PAGE.SURAH_LIST}
         screenOptions={{headerShown: false}}>
-        <Stack.Screen
-          name={PAGE.SURAH_LIST}
-          component={() => (
-            <Layout>
-              <SurahList />
-            </Layout>
-          )}
-        />
-        <Stack.Screen
-          name={PAGE.SURAH_DETAIL}
-          component={() => (
-            <Layout>
-              <SurahDetail />
-            </Layout>
-          )}
-        />
-        <Stack.Screen
-          name={PAGE.TAFSIR_DETAIL}
-          component={() => (
-            <Layout>
-              <TafsirDetail />
-            </Layout>
-          )}
-        />
+        <Stack.Screen name={PAGE.SURAH_LIST} component={SurahList} />
+        <Stack.Screen name={PAGE.SURAH_DETAIL} component={SurahDetail} />
+        <Stack.Screen name={PAGE.TAFSIR_DETAIL} component={TafsirDetail} />
       </Stack.Navigator>
     </NavigationContainer>
   );
