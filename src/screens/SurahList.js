@@ -29,11 +29,8 @@ const SurahList = () => {
       setDataList(response.data.data);
     } catch (error) {
       Alert.alert(error.message);
-      console.error('ERROR FETCHING:', error);
     } finally {
-      setTimeout(() => {
-        setIsloading(false);
-      }, 2000);
+      setIsloading(false);
     }
   };
 

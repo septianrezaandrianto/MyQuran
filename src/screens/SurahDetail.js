@@ -1,27 +1,46 @@
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useEffect, useState} from 'react';
-import {FlatList, Text, View, StyleSheet, TouchableOpacity} from 'react-native';
-import alfatiha from '../../assets/api-json/alfatiha.json';
+import {
+  FlatList,
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import useDarkModeStore from '../hooks/useDarkModeStore';
 import HeaderDetail from '../components/HeaderDetail';
 import {PAGE} from '../constants/constants';
+import axios from 'axios';
 
 const SurahDetail = () => {
+  const {isEnabled} = useDarkModeStore();
+
   const route = useRoute();
   const {id} = route.params;
   const navigation = useNavigation();
 
-  const {isEnabled} = useDarkModeStore();
-
+  const [isLoading, setIsloading] = useState(false);
   const [dataDetail, setDataDetail] = useState(null);
 
-  const getDetail = () => {
-    setDataDetail(alfatiha);
+  const getDetail = async surahId => {
+    setIsloading(true);
+    try {
+      const response = await axios.get(
+        `https://equran.id/api/v2/surat/${surahId}`,
+      );
+      setDataDetail(response.data.data);
+    } catch (error) {
+      Alert.alert(error.message);
+    } finally {
+      setIsloading(false);
+    }
   };
 
   useEffect(() => {
-    getDetail();
-  }, []);
+    getDetail(id);
+  }, [id]);
 
   const surahNext = dataDetail?.suratSelanjutnya;
   const surahPrevious = dataDetail?.suratSebelumnya;
@@ -73,8 +92,25 @@ const SurahDetail = () => {
     </View>
   );
 
-  if (!dataDetail) {
-    return <Text style={{padding: 20}}>Loading...</Text>;
+  if (isLoading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator
+          size="large"
+          color={isEnabled ? '#fff' : '#219ebc'}
+        />
+      </View>
+    );
+  }
+
+  if (!dataDetail && !isLoading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <Text style={{color: isEnabled ? '#fff' : '#000'}}>
+          Data tidak ditemukan
+        </Text>
+      </View>
+    );
   }
 
   return (
@@ -95,7 +131,7 @@ const SurahDetail = () => {
               ]}
               onPress={() =>
                 navigation.push(PAGE.SURAH_DETAIL, {
-                  id: surahPrevious.nomor - 1,
+                  id: surahPrevious.nomor,
                 })
               }>
               <Text style={styles.footerText}>
@@ -108,10 +144,11 @@ const SurahDetail = () => {
       </View>
 
       <View style={{marginTop: surahPrevious ? 40 : 0}}>
-        <HeaderDetail surah={dataDetail} />
+        <HeaderDetail surah={dataDetail} title="Surat" />
 
         <FlatList
-          data={dataDetail.ayat}
+          key={id}
+          data={dataDetail?.ayat}
           keyExtractor={item => item.nomorAyat.toString()}
           renderItem={renderAyat}
           showsVerticalScrollIndicator={false}
@@ -127,7 +164,7 @@ const SurahDetail = () => {
               {marginBottom: surahPrevious ? -30 : 10},
             ]}
             onPress={() =>
-              navigation.push('SurahDetail', {id: surahNext.nomor})
+              navigation.push(PAGE.SURAH_DETAIL, {id: surahNext.nomor})
             }>
             <Text style={styles.footerText}>
               Surat Selanjutnya: {surahNext.nomor}. {surahNext.namaLatin} (

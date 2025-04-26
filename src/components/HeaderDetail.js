@@ -1,12 +1,12 @@
 import {StyleSheet, Text, View} from 'react-native';
 import useDarkModeStore from '../hooks/useDarkModeStore';
 
-const HeaderDetail = ({surah}) => {
+const HeaderDetail = ({surah, title}) => {
   const {isEnabled} = useDarkModeStore();
   return (
     <View style={styles.headerContainer}>
       <Text style={[styles.headerText, {color: isEnabled ? '#fff' : '#000'}]}>
-        Surat {surah.nomor}: {surah.nama} ({surah.namaLatin})
+        {title} {surah.nomor}: {surah.nama} ({surah.namaLatin})
       </Text>
       <Text
         style={[styles.subHeaderText, , {color: isEnabled ? '#fff' : '#555'}]}>
