@@ -1,24 +1,40 @@
 import axios from 'axios';
 import {useEffect, useState} from 'react';
-import {FlatList, ScrollView, StyleSheet, Text, View} from 'react-native';
-import surahListData from '../../assets/api-json/surahlist.json';
+import {
+  Alert,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import useDarkModeStore from '../hooks/useDarkModeStore';
+import {useNavigation} from '@react-navigation/native';
+import usePage from '../hooks/usePage';
 
 const SurahList = () => {
+  const navigation = useNavigation();
+
+  const {setPage, setSurahNumber} = usePage();
+  const {isEnabled} = useDarkModeStore();
+
+  const [isLoading, setIsloading] = useState(false);
   const [dataList, setDataList] = useState([]);
 
-  //   const getDataList = async () => {
-  //     try {
-  //       console.log('kepanggil ga nih 2?');
-  //       const url = `https://equran.id/api/v2/surat`;
-  //       const response = await axios.get(url);
-  //       console.log(response.data);
-  //     } catch (error) {
-  //       console.error('ERROR FETCHING:', error);
-  //     }
-  //   };
-
   const getDataList = async () => {
-    setDataList(surahListData);
+    setIsloading(true);
+    try {
+      const url = `https://equran.id/api/v2/surat`;
+      const response = await axios.get(url);
+      setDataList(response.data.data);
+    } catch (error) {
+      Alert.alert(error.message);
+      console.error('ERROR FETCHING:', error);
+    } finally {
+      setTimeout(() => {
+        setIsloading(false);
+      }, 2000);
+    }
   };
 
   useEffect(() => {
@@ -26,20 +42,36 @@ const SurahList = () => {
   }, []);
 
   const renderItem = ({item}) => (
-    <View style={styles.card}>
-      <View style={styles.headerRow}>
-        <Text style={styles.namaLatin}>
-          {item.nomor}. {item.namaLatin}
-        </Text>
-        <View style={styles.namaArabWrapper}>
-          <Text style={styles.namaArab}>{item.nama}</Text>
+    <TouchableOpacity
+      onPress={() => {
+        navigation.navigate('SurahDetail', {id: item.nomor});
+        setPage('SurahDetail');
+        setSurahNumber(item.nomor);
+      }}>
+      <View
+        style={[
+          styles.card,
+          {backgroundColor: isEnabled ? '#3e3e3f' : '#ffffff'},
+        ]}>
+        <View style={styles.headerRow}>
+          <Text style={[styles.name, {color: isEnabled ? '#fff' : '#000'}]}>
+            {item.nomor}. {item.namaLatin}
+          </Text>
+          <View style={styles.arabicNameWrapper}>
+            <Text
+              style={[styles.arabicName, {color: isEnabled ? '#fff' : '#000'}]}>
+              {item.nama}
+            </Text>
+          </View>
         </View>
+        <Text style={[styles.meaning, {color: isEnabled ? '#fff' : '#000'}]}>
+          {item.arti}
+        </Text>
+        <Text style={[styles.ayahTotal, {color: isEnabled ? '#fff' : '#000'}]}>
+          {item.jumlahAyat} Ayat | {item.tempatTurun}
+        </Text>
       </View>
-      <Text style={styles.arti}>{item.arti}</Text>
-      <Text style={styles.jumlahAyat}>
-        {item.jumlahAyat} Ayat | {item.tempatTurun}
-      </Text>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -48,6 +80,7 @@ const SurahList = () => {
       data={dataList}
       keyExtractor={item => item.nomor.toString()}
       renderItem={renderItem}
+      showsVerticalScrollIndicator={false}
     />
   );
 };
@@ -55,7 +88,6 @@ const SurahList = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 25,
-    backgroundColor: '#f1f1f1',
   },
   card: {
     width: '100%',
@@ -63,22 +95,23 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 15,
     backgroundColor: '#fff',
-    borderRadius: 8,
+    borderEndEndRadius: 8,
+    borderStartStartRadius: 8,
     elevation: 2, // Android
     shadowColor: '#000', // iOS
     shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
   },
-  namaLatin: {
+  name: {
     fontSize: 16,
     fontWeight: 'bold',
   },
-  arti: {
+  meaning: {
     fontSize: 14,
     color: '#666',
   },
-  jumlahAyat: {
+  ayahTotal: {
     fontSize: 12,
     color: '#888',
   },
@@ -89,15 +122,15 @@ const styles = StyleSheet.create({
     marginTop: -5,
     marginBottom: 0,
   },
-  namaArab: {
-    fontSize: 36,
+  arabicName: {
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
     textAlignVertical: 'center',
     textAlign: 'right',
     lineHeight: 40,
   },
-  namaArabWrapper: {
+  arabicNameWrapper: {
     justifyContent: 'center',
   },
 });
