@@ -4,6 +4,7 @@ import usePage from '../hooks/usePage';
 import {useNavigation} from '@react-navigation/native';
 import {memo, useCallback} from 'react';
 import {PAGE} from '../constants/constants';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const Header = memo(({isEnabled, toggleSwitch}) => {
   const {page, setPage, surahNumber} = usePage();
@@ -28,52 +29,71 @@ const Header = memo(({isEnabled, toggleSwitch}) => {
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
       }}>
-      <View style={{display: 'flex', flexDirection: 'row', marginLeft: 30}}>
+      <View style={{display: 'flex', flexDirection: 'row', marginLeft: 20}}>
         {page !== PAGE.SURAH_LIST && (
           <TouchableOpacity
             onPress={() => {
               setPage(PAGE.SURAH_LIST), navigation.navigate(PAGE.SURAH_LIST);
             }}>
-            <Text
+            <Icon
               style={{
-                color: 'blue',
-                fontSize: 36,
+                color: '#fff',
+                fontSize: 28,
                 fontFamily: 'bold',
                 marginRight: 5,
-              }}>
-              ←
-            </Text>
+                marginTop: 15,
+              }}
+              name="arrow-back"
+            />
           </TouchableOpacity>
         )}
-        <Image
-          source={quranLogo}
-          style={{
-            width: 38,
-            height: 38,
-            marginRight: 10,
-          }}
-        />
+
         <Text
           style={{
             color: '#fff',
-            fontSize: 18,
+            fontSize: 24,
             fontWeight: 'bold',
             elevation: 3,
             marginTop: 12,
+            marginLeft: page === PAGE.SURAH_LIST ? 140 : 110,
           }}>
           MyQur'an
         </Text>
         <View
           style={{
-            marginLeft: page !== PAGE.SURAH_LIST ? 150 : 190,
-            marginTop: 15,
+            marginLeft: page !== PAGE.SURAH_LIST ? 50 : 95,
+            marginTop: 17,
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
           }}>
+          <Icon
+            style={{
+              color: isEnabled ? '#fff' : '#219ebc',
+              fontSize: 20,
+              fontFamily: 'bold',
+            }}
+            name="light-mode"
+          />
           <Switch
-            trackColor={{false: '#121212', true: '#f1f1f1'}}
-            thumbColor={isEnabled ? '#219ebc' : '#f4f3f4'}
+            trackColor={{false: '#d3d3d3', true: '#d3d3d3'}}
+            thumbColor={isEnabled ? '#fff' : '#fff'}
             ios_backgroundColor="#3e3e3e"
             onValueChange={toggleSwitch}
             value={isEnabled}
+            style={{
+              transform: [{scaleX: 0.9}, {scaleY: 0.9}],
+            }}
+          />
+          <Icon
+            style={{
+              color: isEnabled ? '#000' : '#000',
+              fontSize: 20,
+              fontFamily: 'bold',
+              marginLeft: -2,
+              marginTop: -2,
+            }}
+            name="dark-mode"
           />
         </View>
       </View>
