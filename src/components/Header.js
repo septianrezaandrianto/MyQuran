@@ -61,7 +61,7 @@ const Header = memo(({isEnabled, toggleSwitch}) => {
         </Text>
         <View
           style={{
-            marginLeft: page !== PAGE.SURAH_LIST ? 50 : 95,
+            marginLeft: 50,
             marginTop: 17,
             display: 'flex',
             flexDirection: 'row',
