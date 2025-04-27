@@ -1,76 +1,65 @@
 import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import useDarkModeStore from '../hooks/useDarkModeStore';
 import Icon from 'react-native-vector-icons/Entypo';
-import Sound from 'react-native-sound';
 import {PAGE} from '../constants/constants';
 import usePage from '../hooks/usePage';
+import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import {useRef, useState} from 'react';
 
 const HeaderDetail = ({surah, title}) => {
   console.log('surah', surah);
   const {isEnabled} = useDarkModeStore();
   const {page} = usePage();
 
-  const playMurotal = () => {
-    const url = surah?.audioFull['05'];
-    console.log('URL:', url);
+  const audioRecorderPlayer = useRef(new AudioRecorderPlayer()).current;
+  const [playTime, setPlayTime] = useState('00:00');
+  const [duration, setDuration] = useState('00:00');
+  const [isPlaying, setIsPlaying] = useState(false);
 
-    let audio = new Sound(surah?.audioFull['05'], null, error => {
-      if (error) {
-        console.log('failed to load the sound', error);
-        return;
+  const playMurotal = async () => {
+    const path = surah?.audioFull['05'];
+
+    if (!path) {
+      Alert.alert('Audio tidak ditemukan');
+      return;
+    }
+
+    if (isPlaying) {
+      console.log('Stopping audio');
+      await audioRecorderPlayer.stopPlayer();
+      audioRecorderPlayer.removePlayBackListener();
+      setIsPlaying(false);
+    } else {
+      console.log('Starting audio');
+      try {
+        const msg = await audioRecorderPlayer.startPlayer(path);
+        audioRecorderPlayer.setVolume(1.0);
+        setIsPlaying(true);
+
+        audioRecorderPlayer.addPlayBackListener(e => {
+          const current = e.current_position;
+          const total = e.duration;
+
+          if (current && total && !isNaN(current) && !isNaN(total)) {
+            setPlayTime(audioRecorderPlayer.mmssss(Math.floor(current)));
+            setDuration(audioRecorderPlayer.mmssss(Math.floor(total)));
+
+            if (current >= total) {
+              console.log('Finished playing');
+              audioRecorderPlayer.stopPlayer();
+              audioRecorderPlayer.removePlayBackListener();
+              setIsPlaying(false);
+            }
+          }
+        });
+      } catch (err) {
+        console.error('Error playing audio:', err);
       }
-
-      console.log(
-        'duration in seconds' +
-          audio.getDuration() +
-          ' number of channels: ' +
-          audio.getNumberOfChannels(),
-      );
-      audio.play(success => {
-        if (success) {
-          console.log('Successfully finished playing');
-        } else {
-          console.log('PLayback failed due to audio recording errors');
-        }
-      });
-    });
-
-    audio.setVolume(0.5);
-
-    // Position the sound to the full right in a stereo field
-    audio.setPan(1);
-
-    // Loop indefinitely until stop() is called
-    audio.setNumberOfLoops(-1);
-
-    // Get properties of the player instance
-    console.log('volume: ' + audio.getVolume());
-    console.log('pan: ' + audio.getPan());
-    console.log('loops: ' + audio.getNumberOfLoops());
-
-    // Seek to a specific point in seconds
-    audio.setCurrentTime(2.5);
-
-    // Get the current playback point in seconds
-    audio.getCurrentTime(seconds => console.log('at ' + seconds));
-
-    // Pause the sound
-    audio.pause();
-
-    // Stop the sound and rewind to the beginning
-    audio.stop(() => {
-      // Note: If you want to play a sound after stopping and rewinding it,
-      // it is important to call play() in a callback.
-      audio.play();
-    });
-
-    // Release the audio player resource
-    audio.release();
+    }
   };
 
   return (
     <View style={styles.headerContainer}>
-      {/* Baris pertama: Teks tengah + icon kanan */}
       <View style={{justifyContent: 'center', alignItems: 'center'}}>
         <Text
           style={[
@@ -93,7 +82,13 @@ const HeaderDetail = ({surah, title}) => {
             <Icon
               name="sound"
               style={{
-                color: isEnabled ? '#fff' : '#219ebc',
+                color: isEnabled
+                  ? isPlaying
+                    ? 'red'
+                    : '#fff'
+                  : isPlaying
+                  ? 'red'
+                  : '#219ebc',
                 fontSize: 18,
                 fontFamily: 'bold',
               }}
@@ -105,6 +100,11 @@ const HeaderDetail = ({surah, title}) => {
         style={[styles.subHeaderText, {color: isEnabled ? '#fff' : '#555'}]}>
         Jumlah Ayat: {surah.jumlahAyat}
       </Text>
+      {isPlaying && (
+        <Text style={{textAlign: 'center', color: isEnabled ? '#fff' : '#000'}}>
+          {playTime} / {duration}
+        </Text>
+      )}
     </View>
   );
 };
