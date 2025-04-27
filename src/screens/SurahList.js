@@ -12,6 +12,7 @@ import useDarkModeStore from '../hooks/useDarkModeStore';
 import {useNavigation} from '@react-navigation/native';
 import usePage from '../hooks/usePage';
 import Layout from '../components/Layout';
+import {PAGE} from '../constants/constants';
 
 const SurahList = () => {
   const navigation = useNavigation();
@@ -36,6 +37,7 @@ const SurahList = () => {
   };
 
   useEffect(() => {
+    setPage(PAGE.SURAH_LIST);
     getDataList();
   }, []);
 

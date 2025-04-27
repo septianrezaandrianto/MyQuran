@@ -7,7 +7,6 @@ import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import {useRef, useState} from 'react';
 
 const HeaderDetail = ({surah, title}) => {
-  console.log('surah', surah);
   const {isEnabled} = useDarkModeStore();
   const {page} = usePage();
 
@@ -39,6 +38,7 @@ const HeaderDetail = ({surah, title}) => {
         audioRecorderPlayer.addPlayBackListener(e => {
           const current = e.current_position;
           const total = e.duration;
+          console.log('Current Position:', current, 'Total Duration:', total);
 
           if (current && total && !isNaN(current) && !isNaN(total)) {
             setPlayTime(audioRecorderPlayer.mmssss(Math.floor(current)));
@@ -84,10 +84,10 @@ const HeaderDetail = ({surah, title}) => {
               style={{
                 color: isEnabled
                   ? isPlaying
-                    ? 'red'
+                    ? '#ff0943'
                     : '#fff'
                   : isPlaying
-                  ? 'red'
+                  ? '#ff0943'
                   : '#219ebc',
                 fontSize: 18,
                 fontFamily: 'bold',
@@ -100,11 +100,11 @@ const HeaderDetail = ({surah, title}) => {
         style={[styles.subHeaderText, {color: isEnabled ? '#fff' : '#555'}]}>
         Jumlah Ayat: {surah.jumlahAyat}
       </Text>
-      {isPlaying && (
+      {/* {isPlaying && (
         <Text style={{textAlign: 'center', color: isEnabled ? '#fff' : '#000'}}>
           {playTime} / {duration}
         </Text>
-      )}
+      )} */}
     </View>
   );
 };

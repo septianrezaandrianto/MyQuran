@@ -1,5 +1,5 @@
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {
   FlatList,
   Text,
@@ -14,6 +14,7 @@ import HeaderDetail from '../components/HeaderDetail';
 import {PAGE} from '../constants/constants';
 import axios from 'axios';
 import Layout from '../components/Layout';
+import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 
 const SurahDetail = () => {
   const {isEnabled} = useDarkModeStore();
@@ -46,6 +47,58 @@ const SurahDetail = () => {
   const surahNext = dataDetail?.suratSelanjutnya;
   const surahPrevious = dataDetail?.suratSebelumnya;
 
+  const audioRecorderPlayer = useRef(new AudioRecorderPlayer()).current;
+  const [playTime, setPlayTime] = useState('00:00');
+  const [duration, setDuration] = useState('00:00');
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const [currentlyPlayingAyah, setCurrentlyPlayingAyah] = useState(null);
+
+  const playMurotal = async path => {
+    console.log('path', path);
+    if (!path) {
+      Alert.alert('Audio tidak ditemukan');
+      return;
+    }
+
+    if (isPlaying) {
+      console.log('Stopping audio');
+      await audioRecorderPlayer.stopPlayer();
+      audioRecorderPlayer.removePlayBackListener();
+      setIsPlaying(false);
+      setCurrentlyPlayingAyah(null);
+    } else {
+      console.log('Starting audio');
+      try {
+        const msg = await audioRecorderPlayer.startPlayer(path);
+        audioRecorderPlayer.setVolume(1.0);
+        setIsPlaying(true);
+
+        audioRecorderPlayer.addPlayBackListener(e => {
+          const current = e.current_position;
+          const total = e.duration;
+
+          if (current && total && !isNaN(current) && !isNaN(total)) {
+            setPlayTime(audioRecorderPlayer.mmssss(Math.floor(current)));
+            setDuration(audioRecorderPlayer.mmssss(Math.floor(total)));
+
+            if (current >= total) {
+              console.log('Finished playing');
+              audioRecorderPlayer.stopPlayer();
+              audioRecorderPlayer.removePlayBackListener();
+              setIsPlaying(false);
+              setCurrentlyPlayingAyah(null);
+            }
+          }
+        });
+
+        setCurrentlyPlayingAyah(path);
+      } catch (err) {
+        console.error('Error playing audio:', err);
+      }
+    }
+  };
+
   const renderAyat = ({item}) => (
     <View
       style={[
@@ -75,14 +128,41 @@ const SurahDetail = () => {
             {item.nomorAyat}
           </Text>
         </View>
-        <Text
+        <TouchableOpacity
+          onPress={() => {
+            playMurotal(item?.audio['05']);
+          }}
           style={[
             styles.arabic,
-            {color: isEnabled ? '#fff' : '#000', flexShrink: 1},
-          ]}
-          allowFontScaling={false}>
-          {item.teksArab}
-        </Text>
+            {
+              color: isEnabled
+                ? currentlyPlayingAyah === item?.audio['05']
+                  ? '#219ebc'
+                  : '#fff'
+                : currentlyPlayingAyah === item?.audio['05']
+                ? '#219ebc'
+                : '#000',
+              flexShrink: 1,
+            },
+          ]}>
+          <Text
+            style={[
+              styles.arabic,
+              {
+                color: isEnabled
+                  ? currentlyPlayingAyah === item?.audio['05'] && isPlaying
+                    ? '#219ebc'
+                    : '#fff'
+                  : currentlyPlayingAyah === item?.audio['05'] && isPlaying
+                  ? '#219ebc'
+                  : '#000',
+                flexShrink: 1,
+              },
+            ]}
+            allowFontScaling={false}>
+            {item.teksArab}
+          </Text>
+        </TouchableOpacity>
       </View>
       <Text style={[styles.latin, {color: isEnabled ? '#fff' : '#555'}]}>
         {item.teksLatin}
@@ -128,7 +208,7 @@ const SurahDetail = () => {
                 style={[
                   styles.footerButton,
                   {
-                    backgroundColor: isEnabled ? '#000' : '#219ebc',
+                    backgroundColor: isEnabled ? '#555' : '#219ebc',
                   },
                 ]}
                 onPress={() =>
@@ -162,7 +242,7 @@ const SurahDetail = () => {
             <TouchableOpacity
               style={[
                 styles.footerButton,
-                {backgroundColor: isEnabled ? '#000' : '#219ebc'},
+                {backgroundColor: isEnabled ? '#555' : '#219ebc'},
                 {marginBottom: surahPrevious ? -30 : 10},
               ]}
               onPress={() =>
@@ -243,8 +323,8 @@ const styles = StyleSheet.create({
   previousButtonWrapper: {
     position: 'absolute',
     top: -50,
-    left: 25,
-    right: 25,
+    left: 5,
+    right: 5,
     zIndex: 100,
   },
 });
